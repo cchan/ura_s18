@@ -60,22 +60,24 @@ document.onkeypress = function(e){
     carOut();
 };
 
-
-console.log("Connecting...");
-var socket = new WebSocket("ws://localhost:3333/ws");
-socket.addEventListener('open', function(event) {
-  console.log("opened connection with server:", event);
-});
-socket.addEventListener('message', function(msg) {
-  console.log("recv:", msg.data);
-  if(msg.data == "i")
-    carIn();
-  else if(msg.data == "o")
-    carOut();
-});
-socket.addEventListener('close', function(event) {
-  console.log("disconnected, retrying in 3 seconds");
-  setTimeout(establishConnection, 3000);
-});
+function establishConnection(){
+  console.log("Connecting...");
+  var socket = new WebSocket("ws://localhost:3333/ws");
+  socket.addEventListener('open', function(event) {
+    console.log("opened connection with server:", event);
+  });
+  socket.addEventListener('message', function(msg) {
+    console.log("recv:", msg.data);
+    if(msg.data == "i")
+      carIn();
+    else if(msg.data == "o")
+      carOut();
+  });
+  socket.addEventListener('close', function(event) {
+    console.log("disconnected, retrying in 3 seconds");
+    setTimeout(establishConnection, 3000);
+  });
+}
+establishConnection();
 </script>
 <img id="car" class="in" src="top-car-view-png-34874.png"/>
