@@ -1,0 +1,81 @@
+<style>
+body{
+  background-image: url("538322418.jpg");
+  background-size: auto 100%;
+}
+#car{
+  height: 17vh;
+  position: absolute;
+  transition: all 1.5s linear;
+}
+#car.in{
+  transform: rotate(240deg);
+  top: 45vh;
+  left: 73.5vh;
+  filter: drop-shadow(-1.7vh -0.5vh 0.2vh #222);
+}
+#car.midway{
+  transform: rotate(240deg);
+  top: 30vh;
+  left: 65vh;
+  filter: drop-shadow(-1.7vh -0.5vh 0.2vh #222);
+}
+#car.out{
+  transform: rotate(180deg);
+  top: 20vh;
+  left: 50vh;
+  filter: drop-shadow(-1.7vh -0.5vh 0.2vh #222);
+}
+</style>
+<script>
+var carTimeout = null;
+function carIn(){
+  clearTimeout(carTimeout);
+  if(document.getElementById("car").className == "midway"){
+    document.getElementById("car").className="in";
+  }else if(document.getElementById("car").className == "out"){
+    document.getElementById("car").className="midway";
+    carTimeout = setTimeout(function(){
+      document.getElementById("car").className="in";
+    }, 1800);
+  }
+}
+
+function carOut(){
+  clearTimeout(carTimeout);
+  if(document.getElementById("car").className == "midway"){
+    document.getElementById("car").className="out";
+  }else if(document.getElementById("car").className == "in"){
+    document.getElementById("car").className="midway";
+    carTimeout = setTimeout(function(){
+      document.getElementById("car").className="out";
+    }, 1800);
+  }
+}
+
+document.onkeypress = function(e){
+  if(e.keyCode == 105) //i
+    carIn();
+  else if(e.keyCode == 111) //o
+    carOut();
+};
+
+
+console.log("Connecting...");
+var socket = new WebSocket("ws://localhost:3333/ws");
+socket.addEventListener('open', function(event) {
+  console.log("opened connection with server:", event);
+});
+socket.addEventListener('message', function(msg) {
+  console.log("recv:", msg.data);
+  if(msg.data == "i")
+    carIn();
+  else if(msg.data == "o")
+    carOut();
+});
+socket.addEventListener('close', function(event) {
+  console.log("disconnected, retrying in 3 seconds");
+  setTimeout(establishConnection, 3000);
+});
+</script>
+<img id="car" class="in" src="top-car-view-png-34874.png"/>
