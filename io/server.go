@@ -3,63 +3,73 @@
 package main
 
 import (
+	"github.com/gorilla/websocket"
 	"github.com/tarm/serial"
-  "log"
-  "time"
-  "net/http"
-  "github.com/gorilla/websocket"
+	"log"
+	"net/http"
+	"time"
 )
 
 var upgrader = websocket.Upgrader{
-  CheckOrigin: func(r *http.Request) bool {
-    return true
-  },
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 func main() {
-  wsconns := make(map[*websocket.Conn]bool, 0)
+	wsconns := make(map[*websocket.Conn]bool, 0)
 
-  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-    // Upgrade the http connection to a WebSocket connetion
-    c, err := upgrader.Upgrade(w, r, nil)
-    if err != nil { log.Println("err: upgrade:", err); return }
-    defer c.Close()
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Upgrade the http connection to a WebSocket connetion
+		c, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println("err: upgrade:", err)
+			return
+		}
+		defer c.Close()
 
-    // Add it to the set of connections
-    log.Printf("Connection added")
-    wsconns[c] = true
-    defer delete(wsconns, c)
+		// Add it to the set of connections
+		log.Printf("Connection added")
+		wsconns[c] = true
+		defer delete(wsconns, c)
 
-    // Wait for messages and deal with them
-    for {
-      _, message, err := c.ReadMessage()
-      if err != nil { log.Println("err: read:", err); break }
-      log.Printf("ws-recv: path{%s} message{%s}", r.URL.Path, string(message))
-      // TODO
-    }
-  })
+		// Wait for messages and deal with them
+		for {
+			_, message, err := c.ReadMessage()
+			if err != nil {
+				log.Println("err: read:", err)
+				break
+			}
+			log.Printf("ws-recv: path{%s} message{%s}", r.URL.Path, string(message))
+			// TODO
+		}
+	})
 
-  log.Println("About to listen on :3333")
-  go func () { log.Fatal(http.ListenAndServe(":3333", nil)) }()
+	log.Println("About to listen on :3333")
+	go func() { log.Fatal(http.ListenAndServe(":3333", nil)) }()
 
-  // Open the UART connection.
+	// Open the UART connection.
 	s, err := serial.OpenPort(&serial.Config{Name: "/dev/ttyS3", Baud: 115200})
-  if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	time.Sleep(1 * time.Second) // Sometimes Arduinos need a bit of time to reset after connecting.
-  s.Flush()
+	s.Flush()
 
-  buf := make([]byte, 256)
+	buf := make([]byte, 256)
 
-  for {
-    // Read some bytes (note that UART may fragment packets, so a forloop reading into buf[bytesread:] might be good here.)
-    bytesread, err := s.Read(buf)
-    if err != nil { log.Fatal(err) }
+	for {
+		// Read some bytes (note that UART may fragment packets, so a forloop reading into buf[bytesread:] might be good here.)
+		bytesread, err := s.Read(buf)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-    log.Printf("uart-recv: message{%s}", string(buf[:bytesread]))
+		log.Printf("uart-recv: message{%s}", string(buf[:bytesread]))
 
-    // Send the string to each websocket connection
-    for c, _ := range wsconns {
-      c.WriteMessage(websocket.TextMessage, buf[:bytesread])
-    }
-  }
+		// Send the string to each websocket connection
+		for c, _ := range wsconns {
+			c.WriteMessage(websocket.TextMessage, buf[:bytesread])
+		}
+	}
 }
