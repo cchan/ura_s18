@@ -4,10 +4,8 @@ package main
 
 import (
 	"github.com/gorilla/websocket"
-	"github.com/tarm/serial"
 	"log"
 	"net/http"
-	"time"
 )
 
 var upgrader = websocket.Upgrader{
@@ -17,9 +15,20 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
+	http.Handle("/", http.FileServer(http.Dir("static")))
+
+	messages := make(chan string)
+
+	http.HandleFunc("/in", func(w http.ResponseWriter, r *http.Request) {
+		messages <- "i"
+	})
+	http.HandleFunc("/out", func(w http.ResponseWriter, r *http.Request) {
+		messages <- "o"
+	})
+
 	wsconns := make(map[*websocket.Conn]bool, 0)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		// Upgrade the http connection to a WebSocket connetion
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -36,40 +45,25 @@ func main() {
 		// Wait for messages and deal with them
 		for {
 			_, message, err := c.ReadMessage()
+			// Usually means that the client has closed the connection
 			if err != nil {
 				log.Println("err: read:", err)
 				break
 			}
 			log.Printf("ws-recv: path{%s} message{%s}", r.URL.Path, string(message))
-			// TODO
+			messages <- string(message)
 		}
 	})
 
 	log.Println("About to listen on :3333")
 	go func() { log.Fatal(http.ListenAndServe(":3333", nil)) }()
 
-	// Open the UART connection.
-	s, err := serial.OpenPort(&serial.Config{Name: "/dev/ttyS3", Baud: 115200})
-	if err != nil {
-		log.Fatal(err)
-	}
-	time.Sleep(1 * time.Second) // Sometimes Arduinos need a bit of time to reset after connecting.
-	s.Flush()
-
-	buf := make([]byte, 256)
-
 	for {
-		// Read some bytes (note that UART may fragment packets, so a forloop reading into buf[bytesread:] might be good here.)
-		bytesread, err := s.Read(buf)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		log.Printf("uart-recv: message{%s}", string(buf[:bytesread]))
+		message := <-messages
 
 		// Send the string to each websocket connection
 		for c, _ := range wsconns {
-			c.WriteMessage(websocket.TextMessage, buf[:bytesread])
+			c.WriteMessage(websocket.TextMessage, []byte(message))
 		}
 	}
 }
