@@ -62,7 +62,7 @@ document.onkeypress = function(e){
 
 function establishConnection(){
   console.log("Connecting...");
-  var socket = new WebSocket("ws://localhost:3333/ws");
+  var socket = new WebSocket("wss://"+window.location.host+"/ws");
   socket.addEventListener('open', function(event) {
     console.log("opened connection with server:", event);
   });
