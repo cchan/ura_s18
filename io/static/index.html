@@ -1,33 +1,41 @@
 <style>
 body{
   background-image: url("538322418.jpg");
-  background-size: auto 100%;
+  background-size: auto 100vh;
+  background-position: -50vh top;
+  overflow: hidden;
 }
 #car{
   height: 17vh;
   position: absolute;
-  transition: all 1.5s linear;
+  transition: transform 1.5s linear, filter 1.5s linear, top 1.5s linear, left 1.5s linear;
 }
 #car.in{
   transform: rotate(240deg);
   top: 45vh;
-  left: 73.5vh;
+  left: 23.5vh;
   filter: drop-shadow(-1.7vh -0.5vh 0.2vh #222);
 }
 #car.midway{
   transform: rotate(240deg);
   top: 30vh;
-  left: 65vh;
+  left: 15vh;
   filter: drop-shadow(-1.7vh -0.5vh 0.2vh #222);
 }
 #car.out{
   transform: rotate(180deg);
-  top: 20vh;
-  left: 50vh;
+  top: 17vh;
+  left: 0vh;
   filter: drop-shadow(-1.7vh -0.5vh 0.2vh #222);
 }
 </style>
 <script>
+window.onresize = function(){
+  var car = document.getElementById("car");
+  car.style.transitionProperty = "none"; // temporarily disable the transition
+  setTimeout(function(){car.style.transitionProperty = "";}, 10); // later restore the actual transition
+}
+
 var carTimeout = null;
 function carIn(){
   clearTimeout(carTimeout);
@@ -53,10 +61,11 @@ function carOut(){
   }
 }
 
-document.onkeypress = function(e){
-  if(e.keyCode == 105) //i
+window.onkeypress = function(e){
+  var key = e.keyCode || e.charCode;
+  if(key == 105) //i
     carIn();
-  else if(e.keyCode == 111) //o
+  else if(key == 111) //o
     carOut();
 };
 

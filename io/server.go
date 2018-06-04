@@ -20,9 +20,11 @@ func main() {
 	messages := make(chan string)
 
 	http.HandleFunc("/in", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("HTTP /in")
 		messages <- "i"
 	})
 	http.HandleFunc("/out", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("HTTP /out")
 		messages <- "o"
 	})
 
