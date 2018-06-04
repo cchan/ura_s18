@@ -20,11 +20,11 @@ func main() {
 	messages := make(chan string)
 
 	http.HandleFunc("/in", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("HTTP /in")
+		// log.Println("HTTP /in")
 		messages <- "i"
 	})
 	http.HandleFunc("/out", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("HTTP /out")
+		// log.Println("HTTP /out")
 		messages <- "o"
 	})
 
@@ -34,13 +34,13 @@ func main() {
 		// Upgrade the http connection to a WebSocket connetion
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Println("err: upgrade:", err)
+			// log.Println("err: upgrade:", err)
 			return
 		}
 		defer c.Close()
 
 		// Add it to the set of connections
-		log.Printf("Connection added")
+		// log.Printf("Connection added")
 		wsconns[c] = true
 		defer delete(wsconns, c)
 
@@ -49,10 +49,10 @@ func main() {
 			_, message, err := c.ReadMessage()
 			// Usually means that the client has closed the connection
 			if err != nil {
-				log.Println("err: read:", err)
+				// log.Println("err: read:", err)
 				break
 			}
-			log.Printf("ws-recv: path{%s} message{%s}", r.URL.Path, string(message))
+			// log.Printf("ws-recv: path{%s} message{%s}", r.URL.Path, string(message))
 			messages <- string(message)
 		}
 	})
