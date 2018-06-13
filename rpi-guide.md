@@ -59,7 +59,7 @@ with
 PasswordAuthentication no
 ```
 
-for security. You can now safely access your raspberry pi on whatever networks you want.
+for security. After restarting sshd, you will now be able to safely access your raspberry pi on whatever networks you want.
 
 ## Network security
 
