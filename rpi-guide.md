@@ -23,9 +23,9 @@ network={
 
 It's good practice to do this set up process on secured wifi (I like to do it on my phone hotspot), but if you really need to you can remove the `psk=...` line and use `key_mgmt=NONE` for WEP wifi. Don't ask about WPA-Enterprise (i.e. eduroam); it's really hard and eduroam also additionally refuses to let you talk to other computers on the same network, for obvious security reasons.
 
-Plug it in to usb power and wait a bit for it to do a first-time boot-up. Then to connect to it, run `ssh pi@raspberrypi`. It'll probably tell you that the authenticity of host 'raspberrypi' cannot be established, which is correct and is one of the reasons you should be doing this setup on secured wifi with no other users. The password is `raspberry`.
+Remove the SD card, put it into the Pi, and plug it in to usb power. Wait a bit for it to do a first-time boot-up. Then to connect to it, make sure you're on the same network as provided in `wpa_supplicant.conf` and run `ssh pi@raspberrypi`. It'll probably tell you that the authenticity of host 'raspberrypi' cannot be established, which is correct and is one of the reasons you should be doing this setup on secured wifi with no other users. The password is `raspberry`.
 
-Upon logging in, set the password with `passwd`. Please.
+Upon logging in, set the password with `passwd` immediately. Please.
 
 It's also generally a good idea to run `sudo apt update` then `sudo apt dist-upgrade` on any new system to update all your packages. If you're wondering, [this](https://askubuntu.com/a/226213) is a good answer describing the difference between `upgrade` and `dist-upgrade`. It's probably a bad idea to do this on cell data, so see the Wifi section for how to do wifi.
 
