@@ -37,7 +37,7 @@ If you have lots of networks you can set `priority` for each one. By default it'
 
 ## Protips
 
-Use `sudo shutdown now` before unplugging your Pi to avoid bad things that usually don't happen but occasionally do.
+Use `sudo poweroff` before unplugging your Pi to gently shut down, avoiding bad things that usually don't happen but occasionally do.
 
 By the way, you can (usually) move your SD card between different Raspberry Pi devices if you want.
 
