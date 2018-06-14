@@ -2,12 +2,41 @@
 
 Clive Chan, June 2018
 
-This assumes RPi 3B or RPi Zero W, and Raspbian Stretch. It might work on older RPis but I don't know. It almost definitely doesn't work for previous versions of Raspbian.
+This assumes RPi 3B or RPi Zero W (mostly the latter), and Raspbian Stretch.
+It might work on older RPis but I don't know. It probably doesn't work for previous versions of Raspbian.
 
 ## Flashing Raspbian and setting up headless
+If you have problems with this, [this](https://gist.github.com/gbaman/975e2db164b3ca2b51ae11e45e8fd40a)
+and [this](https://cdn-learn.adafruit.com/downloads/pdf/turning-your-raspberry-pi-zero-into-a-usb-gadget.pdf)
+are great resources.
+
 Flash the SD card with the latest version of Raspbian, following [these instructions](https://www.raspberrypi.org/documentation/installation/installing-images/).
 
-Create two files in the boot partition: `ssh`, which is blank, and `wpa_supplicant.conf`, which contains:
+Modify three files in the boot partition (you might need to remove and reinsert the SD card):
+
+- Create `ssh`, a blank file.
+- Add a new line to `config.txt` containing `dtoverlay=dwc2`.
+- Add `modules-load=dwc2,g_ether` after `rootwait`. This file is very particular about spacing; delimit your insertion by a single space on each side.
+
+Remember to use unix-style linebreaks where relevant.
+
+Insert the SD card, and plug in the Raspberry Pi to your laptop's USB port. *On RPiZero, make sure it's using the one labeled `USB`, not the one labeled `PWR IN`.*
+
+Wait a bit for it to do a first-time boot-up. Meanwhile, if you're on Windows, install Bonjour Print Services.
+
+Then to connect to it, run `ssh pi@raspberrypi.local`. If you're on Windows, use PuTTY.
+[I haven't figured out how to make `avahi-daemon` discovery work on the Linux subsystem.]
+It'll probably tell you that the authenticity of host 'raspberrypi' cannot be established, which is correct and inevitable; accept it.
+
+(The RPi also helpfully provides its own hostname, `raspberrypi` to the AP which will put it into the DNS if it's supported. Configuring over USB is a lot better than configuring over WiFi though.)
+
+The password is `raspberry`. Upon logging in, set the password with `passwd`. Please.
+
+It's also generally a good idea to run `sudo apt update` then `sudo apt dist-upgrade` on any new system to update all your packages. If you're wondering, [this](https://askubuntu.com/a/226213) is a good answer describing the difference between `upgrade` and `dist-upgrade`. It's probably a bad idea to do this on cell data, so see the Wifi section for how to do wifi.
+
+## WiFi
+
+Edit `/etc/wpa_supplicant/wpa_supplicant.conf`: (you can actually put wpa_supplicant.conf in the boot partition and it'll copy over on startup)
 
 ```
 country=US
@@ -21,17 +50,9 @@ network={
 }
 ```
 
-It's good practice to do this set up process on secured wifi (I like to do it on my phone hotspot), but if you really need to you can remove the `psk=...` line and use `key_mgmt=NONE` for WEP wifi. Don't ask about WPA-Enterprise (i.e. eduroam); it's really hard and eduroam also additionally refuses to let you talk to other computers on the same network, for obvious security reasons.
+It's good practice to use only secured wifi (i.e. I like my phone hotspot), but if you really need to you can remove the `psk=...` line and use `key_mgmt=NONE` for WEP wifi. Don't ask about WPA-Enterprise (i.e. eduroam); it's really hard and eduroam also additionally refuses to let you talk to other computers on the same network, for obvious security reasons.
 
-Remove the SD card, put it into the Pi, and plug it in to usb power. Wait a bit for it to do a first-time boot-up. Then to connect to it, make sure you're on the same network as provided in `wpa_supplicant.conf` and run `ssh pi@raspberrypi`. It'll probably tell you that the authenticity of host 'raspberrypi' cannot be established, which is correct and is one of the reasons you should be doing this setup on secured wifi with no other users. The password is `raspberry`.
-
-Upon logging in, set the password with `passwd` immediately. Please.
-
-It's also generally a good idea to run `sudo apt update` then `sudo apt dist-upgrade` on any new system to update all your packages. If you're wondering, [this](https://askubuntu.com/a/226213) is a good answer describing the difference between `upgrade` and `dist-upgrade`. It's probably a bad idea to do this on cell data, so see the Wifi section for how to do wifi.
-
-## Wifi
-
-Add more networks by editing `/etc/wpa_supplicant/wpa_supplicant.conf`, or you can use `sudo raspi-config` for an even easier to use interface.
+Alternatively, you can use `sudo raspi-config` for an even easier to use interface.
 
 If you have lots of networks you can set `priority` for each one. By default it's `0`, and higher priority means it gets selected first. Negative is allowed.
 
