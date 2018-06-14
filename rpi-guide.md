@@ -28,11 +28,24 @@ Then to connect to it, run `ssh pi@raspberrypi.local`. If you're on Windows, use
 [I haven't figured out how to make `avahi-daemon` discovery work on the Linux subsystem.]
 It'll probably tell you that the authenticity of host 'raspberrypi' cannot be established, which is correct and inevitable; accept it.
 
-(The RPi also helpfully provides its own hostname, `raspberrypi` to the AP which will put it into the DNS if it's supported. Configuring over USB is a lot better than configuring over WiFi though.)
+(The RPi also helpfully provides its own hostname, `raspberrypi` to the AP which will put it into the DDNS if it's supported. Configuring over USB is a lot better than configuring over WiFi though.)
 
 The password is `raspberry`. Upon logging in, set the password with `passwd`. Please.
 
-It's also generally a good idea to run `sudo apt update` then `sudo apt dist-upgrade` on any new system to update all your packages. If you're wondering, [this](https://askubuntu.com/a/226213) is a good answer describing the difference between `upgrade` and `dist-upgrade`. It's probably a bad idea to do this on cell data, so see the Wifi section for how to do wifi.
+## Things to run on first boot
+
+- As above, set the password with `passwd`.
+- Connect to the internet somehow. See below for how to connect directly to any wifi network. [IN PROGRESS: usb tethering?]
+- Run `sudo apt update` then `sudo apt dist-upgrade` on any new system to update all your packages. If you're wondering, [this](https://askubuntu.com/a/226213) is a good answer describing the difference between `upgrade` and `dist-upgrade`. It's probably a bad idea to do this on cell data, so see the Wifi section for how to do wifi.
+- Run `sudo raspi-config`:
+  - Activate the Camera interface if you're using that
+  - The Expand Filesystem advanced option usually is good
+  - Updating the raspi-config script is good too
+- `sudo reboot` after all of this to clean up
+
+## Debugging
+
+`sudo journalctl`
 
 ## WiFi
 
@@ -49,6 +62,18 @@ network={
     key_mgmt=WPA-PSK
 }
 ```
+
+After modifying the file, run `sudo systemctl restart networking.service`
+(there may be more specific commands; this one restarts the whole networking stack)
+to reload the configuration changes. You might also just need a `sudo reboot` if it isn't working.
+
+Useful commands:
+- `iwgetid wlan0` will get you the currently connected wifi name.
+- `sudo iw dev wlan0 scan | grep SSID` will scan for all nearby networks.
+- (not sure if this is necessary) `sudo mv /etc/ifplugd/action.d/action_wpa /etc/ifplugd/action.d/.action_wpa` if you're encountering issues where wlan0 gets cut off when eth gets connected
+  - check this by running `ifconfig` and verifying that there's no ip address assigned to wlan0
+- Other important files include `/etc/network/interfaces` and `/etc/dhcpcd.conf` but generally don't touch.
+- I can't get this to connect to Cloudwifi. Still working on it.
 
 It's good practice to use only secured wifi (i.e. I like my phone hotspot), but if you really need to you can remove the `psk=...` line and use `key_mgmt=NONE` for WEP wifi. Don't ask about WPA-Enterprise (i.e. eduroam); it's really hard and eduroam also additionally refuses to let you talk to other computers on the same network, for obvious security reasons.
 
