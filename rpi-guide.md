@@ -20,7 +20,7 @@ Modify three files in the boot partition (you might need to remove and reinsert 
 
 Remember to use unix-style linebreaks where relevant.
 
-Insert the SD card, and plug in the Raspberry Pi to your laptop's USB port. *On RPiZero, make sure it's using the one labeled `USB`, not the one labeled `PWR IN`.*
+Insert the SD card into the Pi, and plug in the Raspberry Pi to your laptop's USB port. *On RPiZero, make sure it's using the one labeled `USB`, not the one labeled `PWR IN`.*
 
 Wait a bit for it to do a first-time boot-up. Meanwhile, if you're on Windows, install Bonjour Print Services.
 
@@ -68,12 +68,13 @@ After modifying the file, run `sudo systemctl restart networking.service`
 to reload the configuration changes. You might also just need a `sudo reboot` if it isn't working.
 
 Useful commands:
+- `iwconfig` for wifi specifically and `ifconfig` for network interfaces in general
 - `iwgetid wlan0` will get you the currently connected wifi name.
 - `sudo iw dev wlan0 scan | grep SSID` will scan for all nearby networks.
+- `wpa_cli -i wlan0 reconfigure` will restart things after you edit `wpa_supplicant.conf`
 - (not sure if this is necessary) `sudo mv /etc/ifplugd/action.d/action_wpa /etc/ifplugd/action.d/.action_wpa` if you're encountering issues where wlan0 gets cut off when eth gets connected
   - check this by running `ifconfig` and verifying that there's no ip address assigned to wlan0
 - Other important files include `/etc/network/interfaces` and `/etc/dhcpcd.conf` but generally don't touch.
-- I can't get this to connect to Cloudwifi. Still working on it.
 
 It's good practice to use only secured wifi (i.e. I like my phone hotspot), but if you really need to you can remove the `psk=...` line and use `key_mgmt=NONE` for WEP wifi. Don't ask about WPA-Enterprise (i.e. eduroam); it's really hard and eduroam also additionally refuses to let you talk to other computers on the same network, for obvious security reasons.
 
