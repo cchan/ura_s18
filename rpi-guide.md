@@ -24,11 +24,11 @@ Insert the SD card into the Pi, and plug in the Raspberry Pi to your laptop's US
 
 Wait a bit for it to do a first-time boot-up. Meanwhile, if you're on Windows, install Bonjour Print Services.
 
-Then to connect to it, run `ssh pi@raspberrypi.local`. If you're on Windows, use PuTTY.
+Then to connect to it, run `ssh pi@raspberrypi.local`. [If you're on Windows, use PuTTY; it'll discover it for you and then you can use PuTTY local tunnels to ssh from whatever other terminal you want.]
 [I haven't figured out how to make `avahi-daemon` discovery work on the Linux subsystem.]
 It'll probably tell you that the authenticity of host 'raspberrypi' cannot be established, which is correct and inevitable; accept it.
 
-(The RPi also helpfully provides its own hostname, `raspberrypi` to the AP which will put it into the DDNS if it's supported. Configuring over USB is a lot better than configuring over WiFi though.)
+(The RPi also helpfully provides its own hostname, `raspberrypi` to the AP which will put it into the DDNS if it's supported. Configuring over USB is a lot better than configuring over WiFi though, especially as some networks block p2p connections.)
 
 The password is `raspberry`. Upon logging in, set the password with `passwd`. Please.
 

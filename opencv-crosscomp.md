@@ -22,3 +22,8 @@ scp the whole build/lib directory to the raspberry pi, and put the directory (e.
 Uh... turns out someone made a deb package: https://yoursunny.com/t/2018/install-OpenCV3-PiZero/
 How it was done: https://yoursunny.com/t/2018/build-OpenCV3/
 I should probably try doing this for OpenCV 3.4.1 or something. - https://gist.github.com/jed-frey/d01e2d5b39ef33207efda6e170b8788c
+
+- echo 'deb [trusted=yes] http://dl.bintray.com/yoursunny/PiZero stretch-backports main' | sudo tee  /etc/apt/sources.list.d/bintray-yoursunny-PiZero.list
+- sudo apt update
+- sudo apt install python3-opencv
+- python3 -c 'import cv2; print(cv2.__version__)'
