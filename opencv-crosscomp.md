@@ -19,4 +19,6 @@ it fails on target all, but builds cv2.so anyway. Huh.
 
 scp the whole build/lib directory to the raspberry pi, and put the directory (e.g. ~/cv2) into the LD_LIBRARY_PATH.
 
-
+Uh... turns out someone made a deb package: https://yoursunny.com/t/2018/install-OpenCV3-PiZero/
+How it was done: https://yoursunny.com/t/2018/build-OpenCV3/
+I should probably try doing this for OpenCV 3.4.1 or something. - https://gist.github.com/jed-frey/d01e2d5b39ef33207efda6e170b8788c
