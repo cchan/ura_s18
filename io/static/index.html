@@ -8,7 +8,7 @@ body{
 #car{
   height: 17vh;
   position: absolute;
-  transition: all 10s linear;
+  transition: transform 1.5s linear, filter 1.5s linear, top 1.5s linear, left 1.5s linear;
 }
 #car.in{
   transform: rotate(240deg);
@@ -18,120 +18,47 @@ body{
 }
 #car.midway{
   transform: rotate(240deg);
-  top: 33vh;
-  left: 17vh;
+  top: 30vh;
+  left: 15vh;
   filter: drop-shadow(-1.7vh -0.5vh 0.2vh #222);
 }
 #car.out{
-  transform: rotate(210deg);
-  top: 15vh;
-  left: 3vh;
-  filter: drop-shadow(-1.7vh -0.5vh 0.2vh #222);
-}
-#car.away{
   transform: rotate(180deg);
-  top: 18vh;
-  left: 30vh;
+  top: 17vh;
+  left: 0vh;
   filter: drop-shadow(-1.7vh -0.5vh 0.2vh #222);
-}
-#player{
-  float: right;
 }
 </style>
-<span style="color: white">Press "i" to make the car go into the parking space. Press "o" to make the car exit the parking space.</span>
-<img id="car" class="away" src="top-car-view-png-34874.png"/>
-<div id="player"></div>
 <script>
-var car = document.getElementById("car");
-
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api?controls=0&disablekb=1&cc_load_policy=0&fs=0&rel=0&showinfo=0&end=110&iv_load_policy=3&modestbranding=1&playsinline=1";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-var player;
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('player', {
-    height: '390',
-    width: '640',
-    videoId: '_iHe06j1jbg',
-    playerVars: {
-      controls: '0',
-      disablekb: '1',
-      cc_load_policy: '0',
-      fs: '0',
-      rel: '0',
-      showinfo: '0',
-      end: '110',
-      iv_load_policy: '3',
-      modestbranding: '1',
-      playsinline: '1',
-    }
-  });
-}
-
-// 0:11-0:39
-function inVideo(){
-  player.stopVideo();
-  player.seekTo(11, true);
-  player.playVideo();
-  setTimeout(player.pauseVideo.bind(player), 28000);
-}
-// 0:42-1:10
-function outVideo(){
-  player.stopVideo();
-  player.seekTo(42, true);
-  player.playVideo();
-  setTimeout(player.pauseVideo.bind(player), 28000);
-}
-
 window.onresize = function(){
+  var car = document.getElementById("car");
   car.style.transitionProperty = "none"; // temporarily disable the transition
   setTimeout(function(){car.style.transitionProperty = "";}, 10); // later restore the actual transition
 }
 
-
 var carTimeout = null;
 function carIn(){
-  inVideo();
-
   clearTimeout(carTimeout);
-  car.style.transitionProperty = "none"; // temporarily disable the transition
-  car.className = "away";
-  carTimeout = setTimeout(function(){
-    car.style.transitionProperty = ""; // later restore the actual transition
-    car.style.transitionDuration = "10s";
-    car.className="out";
+  if(document.getElementById("car").className == "midway"){
+    document.getElementById("car").className="in";
+  }else if(document.getElementById("car").className == "out"){
+    document.getElementById("car").className="midway";
     carTimeout = setTimeout(function(){
-      car.style.transitionDuration = "3s";
-      car.className="midway";
-      carTimeout = setTimeout(function(){
-        car.style.transitionDuration = "3s";
-        car.className="in";
-      }, 3000);
-    }, 15000);
-  }, 6000);
+      document.getElementById("car").className="in";
+    }, 1800);
+  }
 }
 
 function carOut(){
-  outVideo();
-
   clearTimeout(carTimeout);
-  car.style.transitionProperty = "none"; // temporarily disable the transition
-  car.className = "in";
-  carTimeout = setTimeout(function(){
-    car.style.transitionProperty = ""; // later restore the actual transition
-    car.style.transitionDuration = "6s";
-    car.className="midway";
+  if(document.getElementById("car").className == "midway"){
+    document.getElementById("car").className="out";
+  }else if(document.getElementById("car").className == "in"){
+    document.getElementById("car").className="midway";
     carTimeout = setTimeout(function(){
-      car.style.transitionDuration = "7s";
-      car.className="out";
-      carTimeout = setTimeout(function(){
-        car.style.transitionDuration = "3s";
-        car.className="away";
-      }, 16000);
-    }, 6000);
-  }, 7000);
+      document.getElementById("car").className="out";
+    }, 1800);
+  }
 }
 
 window.onkeypress = function(e){
@@ -162,3 +89,5 @@ function establishConnection(){
 }
 establishConnection();
 </script>
+<span style="color: white">Press "i" to make the car go into the parking space. Press "o" to make the car exit the parking space.</span>
+<img id="car" class="in" src="top-car-view-png-34874.png"/>
