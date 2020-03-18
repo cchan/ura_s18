@@ -67,6 +67,15 @@ After modifying the file, run `sudo systemctl restart networking.service`
 (there may be more specific commands; this one restarts the whole networking stack)
 to reload the configuration changes. You might also just need a `sudo reboot` if it isn't working.
 
+The above **doesn't work** on Orange Pi Zero. I instead appended this to `/etc/network/interfaces`:
+```
+auto wlan0
+iface wlan0 inet dhcp
+wpa-ssid WIFI_NAME
+wpa-psk WIFI_PASSWORD
+```
+
+
 Useful commands:
 - `iwconfig` for wifi specifically and `ifconfig` for network interfaces in general
 - `iwgetid wlan0` will get you the currently connected wifi name.
